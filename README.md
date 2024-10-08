@@ -1,12 +1,12 @@
 # cara pembuatan
 
--npm init -y
--npm i express dotenv sequelize
--membuat file index
--membuat file .env
--membuat utils/connections.js
--membuat model
--membuat relasi one to many
+- npm init -y
+- npm i express dotenv sequelize
+- membuat file index
+- membuat file .env
+- membuat utils/connections.js
+- membuat model
+- membuat relasi one to many
 
 # Sistem Basis Data Pet Shop
 Sistem basis data ini dirancang untuk aplikasi pet shop yang mengelola pengguna (user), hewan peliharaan, transaksi, serta entitas terkait seperti pakan dan admin. Sistem ini menggunakan tabel-tabel relasional, dengan asosiasi untuk mengelola hubungan antara entitas-entitas tersebut.
