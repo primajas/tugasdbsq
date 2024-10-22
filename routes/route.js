@@ -1,16 +1,16 @@
 import express from "express";
 import { createTransaksi, deleteTransaksi, getTransaksi, getTransaksiById, updateTransaksi } from "../controller/TransaksiController.js";
-import { createUser, deleteUser, getUser, getUserById, updateUser } from "../controller/UserController.js";
 import { createHewan, deleteHewan, getHewan, getHewanById, updateHewan } from "../controller/HewanController.js";
 import { createAdmin, deleteAdmin, getAdmin, getAdminById, updateAdmin } from "../controller/AdminController.js";
 import { createPakan, deletePakan, getPakan, getPakanById, updatePakan } from "../controller/PakanController.js";
+import { createPembeli, deletePembeli, getPembeli, getPembeliById, updatePembeli } from "../controller/PembeliController.js";
 const router = express.Router();
 
-router.post("/user/create", createUser)
-router.get("/user", getUser)
-router.get("/user/find/:id", getUserById)
-router.put("/user/update/:id", updateUser);
-router.delete("/user/delete/:id", deleteUser);
+router.post("/pembeli/create", createPembeli)
+router.get("/pembeli", getPembeli)
+router.get("/pembeli/find/:id", getPembeliById)
+router.put("/pembeli/update/:id", updatePembeli);
+router.delete("/pembeli/delete/:id", deletePembeli);
 
 router.post("/transaksi/create", createTransaksi);
 router.get("/transaksi", getTransaksi);
@@ -35,12 +35,5 @@ router.get("/pakan/find/:id",getPakanById)
 router.post("/pakan/create", createPakan)
 router.put("/pakan/update/:id", updatePakan)
 router.delete("/pakan/delete/:id", deletePakan)
-
-
-
-
-
-
-
 
 export default router

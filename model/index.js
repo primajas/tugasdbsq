@@ -5,10 +5,10 @@ import db from "../utils/connection.js";
 import Admin from "./Admin.js";
 import Hewan from "./Hewan.js";
 import Pakan from "./Pakan.js";
+import Pembeli from "./PembeliModel.js";
 import Transaksi from "./Transaksi.js";
-import User from "./UserModel.js";
 
-await User.sync()
+await Pembeli.sync()
 await Hewan.sync()
 await Pakan.sync()
 await Admin.sync()

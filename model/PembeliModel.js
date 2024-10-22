@@ -5,7 +5,7 @@ import Pakan from "./Pakan.js";
 import Transaksi from "./Transaksi.js";
 import Admin from "./Admin.js";
 
-const User = db.define("User",{
+const Pembeli = db.define("User",{
     id:{
         type: DataTypes.INTEGER,
         primaryKey:true,
@@ -16,24 +16,24 @@ const User = db.define("User",{
         type:DataTypes.STRING,
         allowNull:false,
     },
-    email:{
+    gender:{
         type:DataTypes.STRING,
         allowNull:false,
     },
 },
 {
-    tableName:"user"
+    tableName:"pembeli"
 }
 );
 
-User.hasMany(Hewan, { foreignKey: 'UserId' });
-Hewan.belongsTo(User, { foreignKey: 'UserId' });
+Pembeli.hasMany(Hewan, { foreignKey: 'PembeliId' });
+Hewan.belongsTo(Pembeli, { foreignKey: 'PembeliId' });
 
-User.hasMany(Pakan, { foreignKey: 'UserId' });
-Pakan.belongsTo(User, { foreignKey: 'UserId' });
+Pembeli.hasMany(Pakan, { foreignKey: 'PembeliId' });
+Pakan.belongsTo(Pembeli, { foreignKey: 'PembeliId' });
 
-User.hasMany(Transaksi, { foreignKey: 'UserId' });
-Transaksi.belongsTo(User, { foreignKey: 'UserId' });
+Pembeli.hasMany(Transaksi, { foreignKey: 'PembeliId' });
+Transaksi.belongsTo(Pembeli, { foreignKey: 'PembeliId' });
 
 Admin.hasMany(Transaksi, { foreignKey: 'AdminId' });
 Transaksi.belongsTo(Admin, { foreignKey: 'AdminId' });
@@ -46,4 +46,4 @@ Transaksi.belongsTo(Pakan, { foreignKey: 'PakanId' });
 
 
 
-export default User
+export default Pembeli
