@@ -1,31 +1,25 @@
-import jwt from "jsonwebtoken"
-import dotenv from "dotenv"
-dotenv.config
+import jwt from 'jsonwebtoken'
+import 'dotenv/config'
 
-export const verifyToken = (req, res, next) =>{
-    const authHeader = req.headers[authorization]
-
-    if (!authHeader) {
-        console.log("Authorization header not found");
-        return res.status(403).json({ msg: "No token provided." });
-    }
-
-    const token = authHeader.startsWith("Bearer")
-        ? authHeader.substring(7, authHeader.length)
-        : authHeader;
-
+export const verifyToken = async (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]
     if (!token) {
-        console.log("Token not found in header");
-        return res.status(403).json({ msg: "Token missing." });
+        res.status(403).json({msg:'Not token'})
+    } else {
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET,async (err, decode) => {
+            if (err)  {
+                res.status(403).json({msg:'the token is incorrect or has expired'})
+            }else{
+            if (decode) {
+                next()
+            }
+            else {
+                res.status(403).json({msg:'not found'})
+            }
+        }
+
+        })
     }
 
-    try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "SECRETBEBAS");
-        console.log("Token decoded:", decoded);
-        req.user = decoded;
-        next();
-    } catch (error) {
-        console.log("Token verification failed:", error.message);
-        return res.status(401).json({ msg: "Unauthorized or invalid token" });
-    }
-  }
+}

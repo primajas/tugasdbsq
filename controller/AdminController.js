@@ -1,60 +1,130 @@
-import Admin from "../model/Admin.js";
+import Admin from "../model/Admin.js"
+import { hashData, compareData } from "../utils/bycrptData.js"
+import jwt from 'jsonwebtoken'
 
 export const getAdmin = async (req, res) => {
     try {
-      const admin = await Admin.findAll();
-      res.status(200).json(admin);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+        const data = await Admin.findAll(
+            {
+                attributes: ['id', 'email', 'nama', 'password']
+            }
+        )
+        res.status(200).json({ msg: 'mengambil seluruh data admin', data: data })
+    } catch (err) {
+        res.status(500).json({ msg: err.msg })
     }
-  };
 
-export const getAdminById = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const admin = await Admin.findByPk(id);
-      if (!admin) return res.status(404).json({ message: "admin not found" });
-      res.status(200).json(admin);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  };
-
-export const createAdmin = async (req, res) => {
-    try{
-        const { name, password } = req.body;
-        const admin = await Admin.create({name, password});
-        res.status(200).json(admin);
-    }catch(error){
-        res.status(500).json({error: error.message, message: "gagal membuat createAdmin"})
-    }
 }
 
-export const updateAdmin = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { name, password } = req.body;
-    const [updated] = await Admin.update(
-      { name , password },
-      { where: { id } }
-    );
-    if (updated) {
-      const updatedAdmin = await Admin.findByPk(id);
-      res.status(200).json(updatedAdmin);
-    } else {
-      res.status(404).json({ message: "Admin not found" });
+export const getAllAdminById = async (req, res) => {
+    try {
+        const id = req.params.id
+        const data = await Admin.findByPk(id,
+            {
+                attributes: ['id', 'email', 'nama']
+            }
+        )
+        if (data) {
+            res.status(200).json({ msg: 'berhasil mengambil data admin', data: data })
+        } else {
+            res.status(200).json({ msg: 'data tidak ada', data: null })
+        }
+    } catch (err) {
+        res.status(500).json({ msg: err.msg })
     }
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+
+}
+
+
+
+export const updateAdmin = async (req, res) => {
+    try {
+        const { nama, email, password } = req.body
+        await Admin.update({ nama, email, password }, {
+            where: {
+                id: req.params.id
+            }
+        })
+        res.status(200).json({ msg: 'data berhasil di update' })
+    } catch (err) {
+        res.status(500).json({ msg: err.msg })
+    }
+
+}
 
 export const deleteAdmin = async (req, res) => {
-  try{
-    const { id } = req.params;
-    const deleted = await Admin.destroy({where: {id}});
-    res.status(200).json(deleted + ` Admin ke ${id} berhasil dihapus`)
-  }catch(error){
-      res.status(500).json({error: error.message, message: "gagal menghapus user "})
-  }
+    try {
+        const { id } = req.params
+        const data = await Admin.destroy({ where: { id } })
+        res.status(400).json({ message: 'data dihapus' })
+            .end()
+    } catch (err) {
+        res.status(500).json({ msg: err.msg })
+    }
+
+}
+
+export const registerAdmin = async (req, res) => {
+    const { nama, email, password } = req.body
+    if (!nama || !email || !password) res.status(400).json({ msg: 'pastikan mengisi semua data' })
+    else {
+        const resultHash = await hashData(password)
+        try {
+            await Admin.create(
+                {
+                    nama,
+                    email,
+                    password: resultHash
+                }
+            )
+            res.status(201).json({ message: 'register berhasil' })
+        } catch (err) {
+            res.status(500).json({ msg: err.msg })
+        }
+
+    }
+
+}
+
+export const loginAdmin = async (req, res) => {
+    try {
+
+
+        if (!req.body.email || !req.body.password) {
+            res.status(400).json({ msg: 'pastikan mengisi semua data' })
+        } else {
+
+            const admin = await Admin.findOne({
+                where: {
+                    email: req.body.email
+                }
+            })
+            if (admin !== null) {
+
+                const math = await compareData(req.body.password, admin.password)
+                if (!math) {
+                    res.status(400).json({ msg: 'password tidak sesuai' })
+                } else {
+                    const adminId = admin.id
+                    const nama = admin.nama
+                    const email = admin.email
+
+                    const accessToken = jwt.sign({ adminId, nama, email }, process.env.ACCESS_TOKEN_SECRET, {
+                        expiresIn: '1d'
+                    })
+               
+
+
+
+                    res.status(200).json({ accessToken })
+                }
+            } else {
+                
+                res.status(500).json({ msg: 'email belum terdaftar' })
+            }
+        }
+    } catch (err) {
+        res.status(500).json({ msg: err.msg })
+
+    }
 }

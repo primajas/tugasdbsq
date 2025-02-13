@@ -1,60 +1,103 @@
 import Pembeli from "../model/PembeliModel.js";
 
-export const createPembeli = async (req, res) => {
-    try{
-        const { name, gender } = req.body;
-        const pembeli = await Pembeli.create({name, gender});
-        res.status(200).json(pembeli);
-    }catch(error){
-        res.status(500).json({error: error.message, message: "gagal membuat createPembeli"})
+export const getAllPembeli = async (req, res) => {
+    try {
+        const data = await Pembeli.findAll()
+        res.status(200).json({ msg: 'mengambil seluruh data', data: data })
+    } catch (err) {
+        res.status(500).json({ msg: err.msg })
     }
+
 }
-
-export const getPembeli = async (req, res) => {
+export const loginPembeli = async (req, res) => {
     try {
-      const pembelis = await Pembeli.findAll();
-      res.status(200).json(pembelis);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+      const { nama, email } = req.body;
+  
+      if (!nama || !email) {
+        return res.status(400).json({ msg: "Nama dan email harus diisi" });
+      }
+
+      const pembeli = await Pembeli.findOne({
+        where: { nama, email },
+      });
+  
+      if (!pembeli) {
+        return res.status(404).json({ msg: "Pembeli tidak ditemukan" });
+      }
+  
+      res.status(200).json({
+        msg: "Login berhasil",
+        data: pembeli, 
+      });
+    } catch (err) {
+      res.status(500).json({ msg: err.message });
     }
   };
+  
 
-export const getPembeliById = async (req, res) => {
+export const getAllPembeliById = async (req, res) => {
     try {
-      const { id } = req.params;
-      const pembeli = await Pembeli.findByPk(id);
-      if (!pembeli) return res.status(404).json({ message: "Pembeli not found" });
-      res.status(200).json(pembeli);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+        const id = req.params.id
+        const data = await Pembeli.findByPk(id)
+        if (data) {
+            res.status(200).json({ msg: 'berhasil mengambil data admin', data: data })
+        } else {
+            res.status(200).json({ msg: 'data tidak ada', data: null })
+        }
+    } catch (err) {
+        res.status(500).json({ msg: err.msg })
     }
-  };
 
+}
+export const createPembeli = async (req, res) => {
+    try {
+        const { nama, email } = req.body;
+
+        if (!nama || !email) {
+            return res.status(400).json({ message: 'Nama dan email harus diisi' });
+        }
+
+        const newPembeli = await Pembeli.create({ nama, email });
+
+        res.status(201).json({ message: 'Pembeli berhasil dibuat', data: newPembeli });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Terjadi kesalahan', error: error.message });
+    }
+
+}
 export const updatePembeli = async (req, res) => {
     try {
-      const { id } = req.params;
-      const { name, gender } = req.body;
-      const [updated] = await Pembeli.update(
-        { name , gender },
-        { where: { id } }
-      );
-      if (updated) {
-        const updatedPembeli = await Pembeli.findByPk(id);
-        res.status(200).json(updatedPembeli);
-      } else {
-        res.status(404).json({ message: "Pembeli not found" });
-      }
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+        if (!req.body.nama || !req.body.email ) {
+            res.status(400).json({ msg: 'pastikan mengisi semua data' })
+        } else {
+            const { nama, email } = req.body
+            const data = await Pembeli.update({ nama, email}, {
+                where: {
+                    id: req.params.id
+                }
+            })
+            res.status(200).json({ message: 'Pembeli berhasil diupdate' });
+        }
+    } catch (err) {
+        res.status(500).json({ msg: err.message })
     }
-  };
+
+}
+
 
 export const deletePembeli = async (req, res) => {
-    try{
-      const { id } = req.params;
-      const deleted = await Pembeli.destroy({where: {id}});
-      res.status(200).json(deleted + ` Pembeli ke ${id} berhasil dihapus`)
-    }catch(error){
-        res.status(500).json({error: error.message, message: "gagal menghapus user "})
+    try {
+        const { id } = req.params;
+        await Pembeli.destroy({
+            where: {
+                id: id,
+            },
+        });
+
+        res.status(200).json({ message: 'Data berhasil di hapus' })
+
+    } catch (error) {
+        res.status(500).json({ message: 'Gagal menghapus data.', error });
     }
 }
